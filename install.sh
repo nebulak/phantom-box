@@ -15,6 +15,15 @@ function echo_g {
     echo -e "${GREEN}${1}${NC}"
 }
 
+function render_template() {
+  eval "echo \"$(cat $1)\""
+}
+
+function generate_prosody_conf {
+  echo "#### Creating /tmp/httpd.conf from template ./httpd.conf.tmpl"
+  render_template ./templates/prosody/prosody.cfg.lua.tmpl > /etc/prosody/prosody.cfg.lua
+}
+
 
 ############################## PASSWORD SETUP ####################################
 # Get password for admin account
@@ -93,4 +102,7 @@ cd /etc/prosody/
 
 # //TODO: create new config with template
 # source: https://dzone.com/articles/bash-script-to-generate-config-or-property-file-fr
+PROSODY_ADMIN_USER = ""
+PROSODY_ADMIN_PASSWORD = ""
+generate_prosody_conf()
 
