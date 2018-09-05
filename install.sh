@@ -84,7 +84,7 @@ service tor restart
 echo_n "waiting for tor to generate hidden services(60s)"
 sleep 60
 
-hidden_service="$(cat /var/lib/tor/phantom/hostname)"
+HIDDEN_SERVICE="$(cat /var/lib/tor/phantom/hostname)"
 
 # //TODO: firewall configuration with ufw
 
