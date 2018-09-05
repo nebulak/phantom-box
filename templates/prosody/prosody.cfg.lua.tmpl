@@ -24,7 +24,7 @@ storage = "internal"
 authentication = "internal_hashed"
 
 -- Admin-Account festlegen
-admins = { "admin@$hidden_service" }
+admins = { "$PROSODY_ADMIN_USER@$HIDDEN_SERVICE" }
 
 
 --
@@ -39,13 +39,13 @@ s2s_require_encryption = false;
 -- Siehe auch: https://thomas-leister.de/sichere-xmpp-s2s-verschluesselung/
 s2s_secure_auth = false;
 
-ssl = {
-    options = { "no_sslv2", "no_sslv3", "no_compression" };
+--ssl = {
+--    options = { "no_sslv2", "no_sslv3", "no_compression" };
 
-    dhparam = "/etc/myssl/dh2048.pem";
-    key = "/etc/myssl/privkey.pem";
-    certificate = "/etc/myssl/fullchain.pem";
-}
+--    dhparam = "/etc/myssl/dh2048.pem";
+--    key = "/etc/myssl/privkey.pem";
+--    certificate = "/etc/myssl/fullchain.pem";
+--}
 
 
 --
@@ -77,8 +77,8 @@ modules_enabled = {
     "uptime";
     "time";
     "ping";
-    "register_web";
-    "register";
+    --"register_web";
+    --"register";
     "posix";
     "bosh";
     "announce";
@@ -96,6 +96,24 @@ modules_enabled = {
     "compat_dialback";
     "admin_web";
     
+    -- additional modules
+    "auto_activate_hosts";
+    "c2s_conn_throttle";
+    "c2s_limit_sessions";
+    "csi";
+    "filter_chatstates";
+    "host_guard";
+    "lastlog";
+    "limit_auth";
+    "list_inactive";
+    "log_sasl_mech";
+    "motd_sequential";
+    "omemo_all_access";
+    "reload_modules";
+    "register_redirect";
+    "s2s_auth_compat";
+    "smacks";
+    "throttle_presence";
 };
 
 
@@ -129,10 +147,10 @@ archive_expires_after = "1m";
 -- HTTP Config
 ----------------------------------
 
-http_default_host = "$hidden_service"
+http_default_host = "$HIDDEN_SERVICE"
 
 http_paths = {
-    register_web = "/register";
+--    register_web = "/register";
 }
 
 -- BOSH-Funktionalität auch für Clients auf anderen Domains freigeben
@@ -146,7 +164,7 @@ cross_domain_bosh = true;
 
 -- Multi-User-Chat (MUC) soll als verfügbarer XMPP Dienst aufgeführt werden
 disco_items = {
-    { "conference.$hidden_service", "The $hidden_service MUC" };
+    { "conference.$HIDDEN_SERVICE", "The $HIDDEN_SERVICE MUC" };
 }
 
 
@@ -155,14 +173,14 @@ disco_items = {
 ------------------------------------
 
 -- xmppserver.tld als einziger XMPP-vHost
-VirtualHost "$hidden_service"
-    allow_registration = true
+VirtualHost "$HIDDEN_SERVICE"
+    allow_registration = false
     min_seconds_between_registrations = 60
 
-    http_host = "$hidden_service"
+    http_host = "$HIDDEN_SERVICE"
 
     -- Einstellungen zum MUC
-    Component "conference.$hidden_service" "muc"
-        name = "$hidden_service Chatrooms"
+    Component "conference.$HIDDEN_SERVICE" "muc"
+        name = "$HIDDEN_SERVICE Chatrooms"
         restrict_room_creation = false
 max_history_messages = 100
