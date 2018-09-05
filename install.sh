@@ -95,14 +95,24 @@ HIDDEN_SERVICE="$(cat /var/lib/tor/phantom/hostname)"
 wget https://prosody.im/files/prosody-debian-packages.key -O- | sudo apt-key add -
 echo deb http://packages.prosody.im/debian $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/prosody.list
 apt update && apt install prosody lua-dbi-mysql lua-sql-mysql lua-sec
+# //mod_onions dependencies
+# source: https://elbinario.net/2015/12/14/instalar-y-configurar-mod_onions-en-prosody/
+apt-get install liblua5.1-bitop0 liblua5.1-bitop-dev lua-bitop
 
 # delete default config
 cd /etc/prosody/
 > prosody.cfg.lua
 
-# //TODO: create new config with template
+# create new config with template
 # source: https://dzone.com/articles/bash-script-to-generate-config-or-property-file-fr
+# //TODO: create random user and password and create user
 PROSODY_ADMIN_USER = ""
 PROSODY_ADMIN_PASSWORD = ""
 generate_prosody_conf()
+
+# install prosody modules
+apt-get install mercurial
+hg clone https://hg.prosody.im/prosody-modules/ prosody-modules
+cp prosody-modules/mod_onions/mod_onions.lua /usr/lib/prosody/modules/
+prosodyctl restart
 
