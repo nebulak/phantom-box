@@ -114,6 +114,7 @@ modules_enabled = {
     "s2s_auth_compat";
     "smacks";
     "throttle_presence";
+    "onions";
 };
 
 
@@ -167,6 +168,20 @@ disco_items = {
     { "conference.$HIDDEN_SERVICE", "The $HIDDEN_SERVICE MUC" };
 }
 
+
+--
+-- MOD_ONIONS CONFIG
+------------------------------------
+-- source: https://elbinario.net/2015/12/14/instalar-y-configurar-mod_onions-en-prosody/
+onions_tor_all = true
+onions_only = true
+onions_map = {
+        ["jabber.calyxinstitute.org"] = "ijeeynrc6x2uy5ob.onion";
+        ["riseup.net"] = "4cjw6cwpeaeppfqz.onion";
+        ["autistici.org"] = "wi7qkxyrdpu5cmvr.onion";
+        ["inventati.org"] = "wi7qkxyrdpu5cmvr.onion";
+        ["jabber.otr.im"] = "5rgdtlawqkcplz75.onion";
+}
 
 --
 -- XMPP VirtualHosts
