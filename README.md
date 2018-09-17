@@ -8,4 +8,5 @@
   * [ ] Internal Mailserver
   * [ ] Backup
   * [ ] Restore
+  * [ ] WebUI for user management
   * [ ] Automatically build Pi image
