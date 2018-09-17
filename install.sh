@@ -123,3 +123,8 @@ wget https://raw.githubusercontent.com/phantom-box/phantom-storage/master/phanto
 chmod +x ./phantom-storage
 ./phantom-storage install
 ./phantom-storage init
+# //TODO: pass password to storage init
+
+
+##################### Mail-Server ###############################
+
