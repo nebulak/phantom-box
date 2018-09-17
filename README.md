@@ -6,6 +6,7 @@
   * [x] XMPP-Server(Prosody)
   * [ ] Web-Storage for files
   * [ ] Internal Mailserver
+  * [ ] HKP-Server
   * [ ] Backup
   * [ ] Restore
   * [ ] WebUI for user management
