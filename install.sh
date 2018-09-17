@@ -116,3 +116,10 @@ hg clone https://hg.prosody.im/prosody-modules/ prosody-modules
 cp prosody-modules/mod_onions/mod_onions.lua /usr/lib/prosody/modules/
 prosodyctl restart
 
+
+##################### Web-Storage ###############################
+
+wget https://raw.githubusercontent.com/phantom-box/phantom-storage/master/phantom-storage
+chmod +x ./phantom-storage
+./phantom-storage install
+./phantom-storage init
