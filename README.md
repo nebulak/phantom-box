@@ -6,4 +6,6 @@
   * [x] XMPP-Server(Prosody)
   * [ ] Web-Storage for files
   * [ ] Internal Mailserver
+  * [ ] Backup
+  * [ ] Restore
   * [ ] Automatically build Pi image
