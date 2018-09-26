@@ -30,6 +30,26 @@ function generate_prosody_conf {
   render_template ./templates/prosody/prosody.cfg.lua.tmpl > /etc/prosody/prosody.cfg.lua
 }
 
+# source: https://bencane.com/2014/09/02/understanding-exit-codes-and-how-to-use-them-in-bash-scripts/
+# source: https://unix.stackexchange.com/questions/119243/bash-script-to-output-path-to-usb-flash-memory-stick
+function encrypt {
+  # argument 1: plaint_text
+  # argument 2: output path
+  FILE=/riotbox.openpgp 
+  if [ -f $FILE ]; then
+     gpg --import /riotbox.openpgp
+  else
+     echo "File $FILE does not exist."
+  fi
+  echo $1 | gpg -ear riotbox@localhost --trust-model always > $2
+  
+  if [ $? -eq 0 ]
+  then
+    echo "Successfully encrypted."
+  else
+    echo "Unable to encrypt." >&2
+  fi
+}
 
 ################ Functions ##############################
 
