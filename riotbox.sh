@@ -5,6 +5,25 @@ UPDATE_URL="https://nebulak.github.io/riot-box"
 VERSION="0.0.0"
 COMMAND=$1
 
+############################## DEPENDENCIES     ####################################
+# tinylogger.bash - A simple logging framework for Bash scripts in < 10 lines
+# https://github.com/nk412/tinylogger
+# defaults
+LOGGER_FMT="%Y-%m-%d %H:%M:%S"
+LOGGER_LVL="info"
+LOGGER_FILE="/riotbox_log.txt"
+
+function tlog {
+    action=$1 && shift
+    case $action in 
+        debug)  [[ $LOGGER_LVL =~ debug ]]           && echo "$( date "+${LOGGER_FMT}" ) - DEBUG - $@" >> LOGGER_FILE ;;
+        info)   [[ $LOGGER_LVL =~ debug|info ]]      && echo "$( date "+${LOGGER_FMT}" ) - INFO - $@" >> LOGGER_FILE  ;;
+        warn)   [[ $LOGGER_LVL =~ debug|info|warn ]] && echo "$( date "+${LOGGER_FMT}" ) - WARN - $@" >> LOGGER_FILE  ;;
+        error)  [[ ! $LOGGER_LVL =~ none ]]          && echo "$( date "+${LOGGER_FMT}" ) - ERROR - $@" >> LOGGER_FILE ;;
+    esac
+true; }
+
+
 ############################## HELPER FUNCTIONS ####################################
 # source: https://misc.flogisoft.com/bash/tip_colors_and_formatting
 # source2: https://gist.github.com/daytonn/8677243
@@ -21,7 +40,7 @@ function echo_g {
     echo -e "${GREEN}${1}${NC}"
 }
 
-function render_template() {
+function render_template {
   eval "echo \"$(cat $1)\""
 }
 
@@ -39,15 +58,18 @@ function encrypt {
   if [ -f $FILE ]; then
      gpg --import /riotbox.openpgp
   else
-     echo "File $FILE does not exist."
+    tlog error "File $FILE does not exist."
+    exit 1
   fi
   echo $1 | gpg -ear riotbox@localhost --trust-model always > $2
   
   if [ $? -eq 0 ]
   then
-    echo "Successfully encrypted."
+    tlog debug "Successfully encrypted file with gpg."
   else
-    echo "Unable to encrypt." >&2
+    tlog error "Unable to encrypt."
+    echo "Unable to encrypt."
+    exit 1
   fi
 }
 
@@ -86,6 +108,7 @@ install() {
 
     echo_n "Installing apt-transport-https"
     apt-get install apt-transport-https
+    apt-get install wget
 
     ############################## HIDDEN SERVICE CONFIGURATION ####################################
     # Tor installation & hidden service creation
