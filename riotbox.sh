@@ -185,6 +185,14 @@ restore() {
   # //TODO:
 }
 
+lock() {
+  # //TODO:
+}
+
+unlock() {
+  # //TODO:
+}
+
 case "$1" in
         install)
             install # install all package
