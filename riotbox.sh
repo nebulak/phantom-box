@@ -73,25 +73,17 @@ function encrypt {
   fi
 }
 
+
 ################ Functions ##############################
 
 
 
 install() {
     ############################## PASSWORD SETUP ####################################
-    # Get password for admin account
-    echo_n "Enter the password you want to use for your yunohost admin account and the root user"
-    read -s -p "Password: " PASSWORD; echo
-    read -s -p "Confirm Password: " PASSCONFIRM; echo
-
-    if [[ "$PASSWORD" != "$PASSCONFIRM" ]]; then
-     echo "Passwords do not match, exiting..."
-     echo "Restart this script and try again!"
-     exit -1
-    fi
-
+    # info: https://diceware.readthedocs.io/en/stable/readme.html#usage
+    ROOT_PASSWORD=${diceware --wordlist en_eff -n 8}
     # //change root password
-    echo root:$PASSWORD | chpasswd
+    echo root:$ROOT_PASSWORD | chpasswd
 
 
     ############################## SYSTEM UPDATE ####################################
@@ -109,6 +101,7 @@ install() {
     echo_n "Installing apt-transport-https"
     apt-get install apt-transport-https
     apt-get install wget
+    apt-get install diceware
 
     ############################## HIDDEN SERVICE CONFIGURATION ####################################
     # Tor installation & hidden service creation
@@ -160,8 +153,8 @@ install() {
     # create new config with template
     # source: https://dzone.com/articles/bash-script-to-generate-config-or-property-file-fr
     # //TODO: create random user and password and create user
-    PROSODY_ADMIN_USER = ""
-    PROSODY_ADMIN_PASSWORD = ""
+    PROSODY_ADMIN_USER = "riotboxadmin"
+    PROSODY_ADMIN_PASSWORD = ${diceware --wordlist en_eff -n 8}
     generate_prosody_conf()
 
     # install prosody modules
