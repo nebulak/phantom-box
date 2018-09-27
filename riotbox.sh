@@ -141,7 +141,10 @@ install() {
     # install prosody and dependencies
     wget https://prosody.im/files/prosody-debian-packages.key -O- | sudo apt-key add -
     echo deb http://packages.prosody.im/debian $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/prosody.list
-    apt update && apt install prosody lua-dbi-mysql lua-sql-mysql lua-sec
+    sudo apt-get update
+    sudo apt-get upgrade
+    
+    sudo apt-get install prosody lua-dbi-mysql lua-sql-mysql lua-sec
     # //mod_onions dependencies
     # source: https://elbinario.net/2015/12/14/instalar-y-configurar-mod_onions-en-prosody/
     apt-get install liblua5.1-bitop0 liblua5.1-bitop-dev lua-bitop
@@ -152,25 +155,37 @@ install() {
 
     # create new config with template
     # source: https://dzone.com/articles/bash-script-to-generate-config-or-property-file-fr
-    # //TODO: create random user and password and create user
     PROSODY_ADMIN_USER = "riotboxadmin"
     PROSODY_ADMIN_PASSWORD = ${diceware --wordlist en_eff -n 8}
     generate_prosody_conf()
 
     # install prosody modules
-    apt-get install mercurial
-    hg clone https://hg.prosody.im/prosody-modules/ prosody-modules
-    cp prosody-modules/mod_onions/mod_onions.lua /usr/lib/prosody/modules/
+    # source: https://mgw.dumatics.com/prosody-behind-apache-on-debian-stretch/
+    sudo apt-get install mercurial
+    cd /usr/lib/prosody/
+    sudo hg clone https://hg.prosody.im/prosody-modules/ prosody-modules
+    
     prosodyctl restart
 
 
     ##################### Web-Storage ###############################
-
-    wget https://raw.githubusercontent.com/phantom-box/phantom-storage/master/phantom-storage
-    chmod +x ./phantom-storage
-    ./phantom-storage install
-    ./phantom-storage init
-    # //TODO: pass password to storage init
+    cd /home/pi
+    wget https://github.com/filebrowser/filebrowser/releases/download/v1.8.0/linux-armv7-filebrowser.tar.gz
+    sudo apt-get install libssl-dev
+    git clone https://github.com/canha/golang-tools-install-script
+    chmod +x ./golang-tools-install-script/goinstall.sh
+    ./golang-tools-install-script/goinstall.sh --arm
+    go get -d github.com/rfjakob/gocryptfs
+    cd $(go env GOPATH)/src/github.com/rfjakob/gocryptfs
+    ./build.bash
+    sudo cp ./../../../../bin/gocryptfs /usr/local/bin/gocryptfs
+    
+    # init storage
+    STORAGE_ENC_PASSWORD=${diceware --wordlist en_eff -n 8}
+    mkdir data data_encrypted
+    gocryptfs -init -extpass="echo $STORAGE_ENC_PASSWORD" ./data_encrypted
+    
+    # //TODO: start storage
 }
 
 update() {
