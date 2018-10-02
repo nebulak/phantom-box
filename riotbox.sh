@@ -49,11 +49,16 @@ function generate_prosody_conf {
   render_template ./templates/prosody/prosody.cfg.lua.tmpl > /etc/prosody/prosody.cfg.lua
 }
 
+function generate_email_content {
+  MAIL_CONTENT=${echo render_template ./templates/email/email.tmpl}
+  ENC_MAIL_CONTENT=${encrypt "$MAIL_CONTENT"}
+  echo "$ENC_MAIL_CONTENT"
+}
+
 # source: https://bencane.com/2014/09/02/understanding-exit-codes-and-how-to-use-them-in-bash-scripts/
 # source: https://unix.stackexchange.com/questions/119243/bash-script-to-output-path-to-usb-flash-memory-stick
 function encrypt {
   # argument 1: plain_text
-  # argument 2: output path
   FILE=/riotbox.openpgp
   if [ -f $FILE ]; then
      gpg --import /riotbox.openpgp
@@ -61,16 +66,8 @@ function encrypt {
     tlog error "File $FILE does not exist."
     exit 1
   fi
-  echo $1 | gpg -ear riotbox@localhost --trust-model always > $2
+  echo $1 | gpg -ear riotbox@localhost --trust-model always | echo
 
-  if [ $? -eq 0 ]
-  then
-    tlog debug "Successfully encrypted file with gpg."
-  else
-    tlog error "Unable to encrypt."
-    echo "Unable to encrypt."
-    exit 1
-  fi
 }
 
 
@@ -83,8 +80,8 @@ install() {
     # info: https://diceware.readthedocs.io/en/stable/readme.html#usage
     ROOT_PASSWORD=${diceware --wordlist en_eff -n 8}
     # //change root password
-    echo root:$ROOT_PASSWORD | chpasswd
-
+    # echo root:$ROOT_PASSWORD | chpasswd
+    echo pi:$ROOT_PASSWORD | chpasswd
 
     ############################## SYSTEM UPDATE ####################################
     # Update package list
@@ -194,7 +191,9 @@ install() {
 
     #################### Install sSMTP ###################################
     sudo apt-get install -y ssmtp
-    echo -e "Subject: Your riotbox.sh is ready!\n\nthis is the b" | mail user@example.com
+    EMAIL=$(cat /boot/email)
+    MAIL_CONTENT=${generate_email_content}
+    echo -e "$MAIL_CONTENT"  | mail "$EMAIL"
 }
 
 unlock_storage() {
