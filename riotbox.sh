@@ -99,9 +99,9 @@ install() {
 
 
     echo_n "Installing apt-transport-https"
-    apt-get install apt-transport-https
-    apt-get install wget
-    apt-get install diceware
+    apt-get install -y apt-transport-https
+    apt-get install -y wget
+    apt-get install -y diceware
 
     ############################## HIDDEN SERVICE CONFIGURATION ####################################
     # Tor installation & hidden service creation
@@ -141,13 +141,13 @@ install() {
     # install prosody and dependencies
     wget https://prosody.im/files/prosody-debian-packages.key -O- | sudo apt-key add -
     echo deb http://packages.prosody.im/debian $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/prosody.list
-    sudo apt-get update
-    sudo apt-get upgrade
+    sudo apt-get -y update
+    sudo apt-get -y upgrade
     
-    sudo apt-get install prosody lua-dbi-mysql lua-sql-mysql lua-sec
+    sudo apt-get -y install prosody lua-dbi-mysql lua-sql-mysql lua-sec
     # //mod_onions dependencies
     # source: https://elbinario.net/2015/12/14/instalar-y-configurar-mod_onions-en-prosody/
-    apt-get install liblua5.1-bitop0 liblua5.1-bitop-dev lua-bitop
+    apt-get install -y liblua5.1-bitop0 liblua5.1-bitop-dev lua-bitop
 
     # delete default config
     cd /etc/prosody/
@@ -161,7 +161,7 @@ install() {
 
     # install prosody modules
     # source: https://mgw.dumatics.com/prosody-behind-apache-on-debian-stretch/
-    sudo apt-get install mercurial
+    sudo apt-get install -y mercurial
     cd /usr/lib/prosody/
     sudo hg clone https://hg.prosody.im/prosody-modules/ prosody-modules
     
@@ -170,8 +170,14 @@ install() {
 
     ##################### Web-Storage ###############################
     cd /home/pi
+    sudo apt-get install -y syncthing
     wget https://github.com/filebrowser/filebrowser/releases/download/v1.8.0/linux-armv7-filebrowser.tar.gz
-    sudo apt-get install libssl-dev
+    mkdir /var/riotbox_sh/bin
+    mkdir /var/riotbox_sh/bin/filebrowser
+    tar -xzf linux-armv7-filebrowser.tar.gz
+    mv -v ./linux-armv7-filebrowser/* /var/riotbox_sh/bin/filebrowser
+    
+    sudo apt-get install -y libssl-dev
     git clone https://github.com/canha/golang-tools-install-script
     chmod +x ./golang-tools-install-script/goinstall.sh
     ./golang-tools-install-script/goinstall.sh --arm
@@ -182,14 +188,27 @@ install() {
     
     # init storage
     STORAGE_ENC_PASSWORD=${diceware --wordlist en_eff -n 8}
-    mkdir data data_encrypted
-    gocryptfs -init -extpass="echo $STORAGE_ENC_PASSWORD" ./data_encrypted
+    mkdir /var/riotbox_sh/data
+    mkdir /var/riotbox_sh/data_encrypted
+    gocryptfs -init -extpass="echo $STORAGE_ENC_PASSWORD" /var/riotbox_sh/data_encrypted
     
-    # //TODO: start storage
+}
+
+unlock_storage() {
+  ./gocryptfs -extpass="echo $1" /var/riotbox_sh/data_encrypted /var/riotbox_sh/data
+  ./filebrowser -p 8080 -s /var/riotbox_sh/data &>/dev/null &
+  syncthing &>/dev/null &
+}
+
+lock_storage() {
+  pkill syncthing
+  pkill filebrowser
+  fusermount -u /var/riotbox_sh/data
+  echo "Successfully locked storage"
 }
 
 update() {
-  install()
+  # //TODO:
 }
 
 backup() {
@@ -201,11 +220,11 @@ restore() {
 }
 
 lock() {
-  # //TODO:
+  lock_storage()
 }
 
 unlock() {
-  # //TODO:
+  unlock_storage($1)
 }
 
 case "$1" in
@@ -223,8 +242,14 @@ case "$1" in
         restore)
             restore # uninstall one or all packages
             ;;
+        unlock)
+            unlock # uninstall one or all packages
+            ;;
+        lock)
+            lock # uninstall one or all packages
+            ;;
         *)
-            echo $"Usage: $0 {install|update|uninstall}"
+            echo $"Usage: $0 {install|update|unlock|lock|backup|restore}"
             exit 1
 
 esac
