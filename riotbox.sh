@@ -175,6 +175,8 @@ install() {
     tar -xzf linux-armv7-filebrowser.tar.gz
     mv -v ./linux-armv7-filebrowser/* /var/riotbox_sh/bin/filebrowser
 
+    sudo apt-get install -y syncthing
+
     sudo apt-get install -y libssl-dev
     git clone https://github.com/canha/golang-tools-install-script
     chmod +x ./golang-tools-install-script/goinstall.sh
@@ -198,8 +200,8 @@ install() {
 }
 
 unlock_storage() {
-  ./gocryptfs -extpass="echo $1" /var/riotbox_sh/data_encrypted /var/riotbox_sh/data
-  ./filebrowser -p 8080 -s /var/riotbox_sh/data &>/dev/null &
+  gocryptfs -extpass="echo $1" /var/riotbox_sh/data_encrypted /var/riotbox_sh/data
+  /var/riotbox_sh/bin/filebrowser/filebrowser -p 8080 -s /var/riotbox_sh/data &>/dev/null &
   syncthing &>/dev/null &
 }
 
