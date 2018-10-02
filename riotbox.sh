@@ -109,6 +109,7 @@ install() {
     echo_n "Creating hidden service..."
     echo '# Hidden service for ssh' >> /etc/tor/torrc
     echo 'HiddenServiceDir  /var/lib/tor/phantom/' >> /etc/tor/torrc
+    echo 'HiddenServiceVersion 3'
     # ssh
     echo 'HiddenServicePort 22 127.0.0.1:22' >> /etc/tor/torrc
     # Email Ports
