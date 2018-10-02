@@ -15,7 +15,7 @@ LOGGER_FILE="/riotbox_log.txt"
 
 function tlog {
     action=$1 && shift
-    case $action in 
+    case $action in
         debug)  [[ $LOGGER_LVL =~ debug ]]           && echo "$( date "+${LOGGER_FMT}" ) - DEBUG - $@" >> LOGGER_FILE ;;
         info)   [[ $LOGGER_LVL =~ debug|info ]]      && echo "$( date "+${LOGGER_FMT}" ) - INFO - $@" >> LOGGER_FILE  ;;
         warn)   [[ $LOGGER_LVL =~ debug|info|warn ]] && echo "$( date "+${LOGGER_FMT}" ) - WARN - $@" >> LOGGER_FILE  ;;
@@ -52,9 +52,9 @@ function generate_prosody_conf {
 # source: https://bencane.com/2014/09/02/understanding-exit-codes-and-how-to-use-them-in-bash-scripts/
 # source: https://unix.stackexchange.com/questions/119243/bash-script-to-output-path-to-usb-flash-memory-stick
 function encrypt {
-  # argument 1: plaint_text
+  # argument 1: plain_text
   # argument 2: output path
-  FILE=/riotbox.openpgp 
+  FILE=/riotbox.openpgp
   if [ -f $FILE ]; then
      gpg --import /riotbox.openpgp
   else
@@ -62,7 +62,7 @@ function encrypt {
     exit 1
   fi
   echo $1 | gpg -ear riotbox@localhost --trust-model always > $2
-  
+
   if [ $? -eq 0 ]
   then
     tlog debug "Successfully encrypted file with gpg."
@@ -143,7 +143,7 @@ install() {
     echo deb http://packages.prosody.im/debian $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/prosody.list
     sudo apt-get -y update
     sudo apt-get -y upgrade
-    
+
     sudo apt-get -y install prosody lua-dbi-mysql lua-sql-mysql lua-sec
     # //mod_onions dependencies
     # source: https://elbinario.net/2015/12/14/instalar-y-configurar-mod_onions-en-prosody/
@@ -164,7 +164,7 @@ install() {
     sudo apt-get install -y mercurial
     cd /usr/lib/prosody/
     sudo hg clone https://hg.prosody.im/prosody-modules/ prosody-modules
-    
+
     prosodyctl restart
 
 
@@ -176,7 +176,7 @@ install() {
     mkdir /var/riotbox_sh/bin/filebrowser
     tar -xzf linux-armv7-filebrowser.tar.gz
     mv -v ./linux-armv7-filebrowser/* /var/riotbox_sh/bin/filebrowser
-    
+
     sudo apt-get install -y libssl-dev
     git clone https://github.com/canha/golang-tools-install-script
     chmod +x ./golang-tools-install-script/goinstall.sh
@@ -185,13 +185,16 @@ install() {
     cd $(go env GOPATH)/src/github.com/rfjakob/gocryptfs
     ./build.bash
     sudo cp ./../../../../bin/gocryptfs /usr/local/bin/gocryptfs
-    
+
     # init storage
     STORAGE_ENC_PASSWORD=${diceware --wordlist en_eff -n 8}
     mkdir /var/riotbox_sh/data
     mkdir /var/riotbox_sh/data_encrypted
     gocryptfs -init -extpass="echo $STORAGE_ENC_PASSWORD" /var/riotbox_sh/data_encrypted
-    
+
+    #################### Install sSMTP ###################################
+    sudo apt-get install -y ssmtp
+    echo -e "Subject: Your riotbox.sh is ready!\n\nthis is the b" | mail user@example.com
 }
 
 unlock_storage() {
